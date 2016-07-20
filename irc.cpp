@@ -52,14 +52,36 @@ IRC::IRC(std::string host, std::string port)
           data >> response.username;
           data.ignore(2);
           getline(data, response.message);
-          switch(response.code)
+          try
           {
-            case 372:
-              break;
-            default:
-              break;
+            int code = stoi(response.code);
+            switch(code)
+            {
+              case RPL_WELCOME:
+              case RPL_YOURHOST:
+              case RPL_CREATED:
+              case RPL_MYINFO:
+              case RPL_MOTDSTART:
+              case RPL_MOTD:
+              case RPL_ENDOFMOTD:
+                break;
+              default:
+                std::cout << "> " << response.raw << std::endl;
+                break;
+            }
           }
-              std::cout << "> " << response.raw << std::endl;
+          catch(std::invalid_argument)
+          {
+            switch(hashit(response.code))
+            {
+              case PRIVMSG:
+                break;
+              case NONE:
+              default:
+                std::cout << "> " << response.raw << std::endl;
+                break;
+            }
+          }
           buff = buff.substr(idx + 2);
         }
         

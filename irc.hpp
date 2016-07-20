@@ -8,6 +8,8 @@ using boost::asio::ip::tcp;
 
 enum Reply
 {
+  NONE,
+  PRIVMSG,
   RPL_WELCOME = 1,
   RPL_YOURHOST = 2,
   RPL_CREATED = 3,
@@ -171,12 +173,18 @@ enum Reply
   ERR_USERSDONTMATCH = 502
 };
 
+Reply hashit(const std::string& inString)
+{
+  if (inString == "PRIVMSG") return PRIVMSG;
+  return NONE;
+}
+
 class Response
 {
 public:
   std::string raw;
   std::string host;
-  boost::uint16_t code;
+  std::string code;
   std::string username;
   std::string message;
 };
