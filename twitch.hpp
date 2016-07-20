@@ -1,4 +1,4 @@
-#ifndef IRC_H
+#ifndef TWITCH_H
 #define TWITCH_H
 
 #include "irc.hpp"
