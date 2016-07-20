@@ -13,6 +13,7 @@ int main(int argc, char* argv[]) {
   char line[64];
   while (std::cin.getline(line, 64))
   {
+    irc.send(line);
   }
 
   return 0;

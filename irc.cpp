@@ -52,11 +52,9 @@ IRC::IRC(std::string host, std::string port)
           data >> response.username;
           data.ignore(2);
           getline(data, response.message);
-          std::string JOIN = "JOIN #nightblue3\r\n";
           switch(response.code)
           {
             case 372:
-              boost::asio::write(*s, boost::asio::buffer(JOIN, JOIN.length()));
               break;
             default:
               std::cout << "> " << response.raw << std::endl;
