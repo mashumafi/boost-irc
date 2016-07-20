@@ -57,9 +57,9 @@ IRC::IRC(std::string host, std::string port)
             case 372:
               break;
             default:
-              std::cout << "> " << response.raw << std::endl;
               break;
           }
+              std::cout << "> " << response.raw << std::endl;
           buff = buff.substr(idx + 2);
         }
         
