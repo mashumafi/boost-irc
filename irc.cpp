@@ -7,10 +7,8 @@
 #include <sstream>
 #include <vector>
 
-#include <boost/regex.hpp>
 #include <boost/thread.hpp>
 #include <boost/format.hpp>
-#include <boost/algorithm/string/join.hpp>
 #include <boost/assign/list_of.hpp>
 
 using namespace boost::assign;
@@ -43,18 +41,12 @@ IRC::IRC(std::string host, std::string port)
         while((idx = buff.find("\r\n")) > 0)
         {
           std::string line = buff.substr(0, idx);
-          std::stringstream data;
-          data << line;
-          Response response;
-          response.raw = line;
-          data >> response.host;
-          data >> response.code;
-          data >> response.username;
-          data.ignore(2);
-          getline(data, response.message);
+          
+          Message msg(line);
+          
           try
           {
-            int code = stoi(response.code);
+            int code = stoi(msg.command);
             switch(code)
             {
               case RPL_WELCOME:
@@ -66,19 +58,19 @@ IRC::IRC(std::string host, std::string port)
               case RPL_ENDOFMOTD:
                 break;
               default:
-                std::cout << "> " << response.raw << std::endl;
+                std::cout << "> " << msg.raw << std::endl;
                 break;
             }
           }
           catch(std::invalid_argument)
           {
-            switch(hashit(response.code))
+            switch(hashit(msg.command))
             {
               case PRIVMSG:
                 break;
               case NONE:
               default:
-                std::cout << "> " << response.raw << std::endl;
+                std::cout << "> " << msg.raw << std::endl;
                 break;
             }
           }

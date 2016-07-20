@@ -1,8 +1,13 @@
 #ifndef IRC_H
 #define IRC_H
 
+#include<cstring>
+#include<vector>
 #include <iostream>
 #include <boost/asio.hpp>
+#include <boost/regex.hpp>
+#include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -179,14 +184,69 @@ Reply hashit(const std::string& inString)
   return NONE;
 }
 
-class Response
+// https://gist.github.com/datagrok/380449c30fd0c5cf2f30
+std::string regex = "^"                     // We'll match the whole line. Start.
+                                            // Optional prefix and the space that separates it
+                                            // from the next thing. Prefix can be a servername,
+                                            // or nick[[!user]@host]
+                    "(?::("                 // This whole set is optional but if it's
+                                            // here it begins with : and ends with space
+                    "([^@!\\ ]*)"           // nick
+                    "(?:"                   // then, optionally user/host
+                    "(?:"                   // but user is optional if host is given
+                    "!([^@]*)"              // !user
+                    ")?"                    // (user was optional)
+                    "@([^\\ ]*)"            // @host
+                    ")?"                    // (host was optional)
+                    ")\\ )?"                // ":nick!user@host " ends
+                    "([^\\ ]+)"             // IRC command (required)
+                                            // Optional args, max 15, space separated. Last arg is
+                                            // the only one that may contain inner spaces. More than
+                                            // 15 words means remainder of words are part of 15th arg.
+                                            // Last arg may be indicated by a colon prefix instead.
+                                            // Pull the leading and last args out separately; we have
+                                            // to split the former on spaces.
+                    "("
+                    "(?:"
+                    "\\ [^:\\ ][^\\ ]*"     // space, no colon, non-space characters
+                    "){0,14}"               // repeated up to 14 times
+                    ")"                     // captured in one reference
+                    "(?:\\ :?(.*))?"        // the rest, does not capture colon.
+                    "$";                    // EOL
+
+class Message
 {
 public:
+  Message()
+  {
+    
+  }
+  Message(std::string raw)
+  {
+    boost::regex expr{regex};
+    boost::smatch what;
+    if (boost::regex_search(raw, what, expr))
+    {
+      this->raw = raw;
+      this->prefix = what[1];
+      this->nickname = what[2];
+      this->user = what[3];
+      this->hostname = what[4];
+      this->command = what[5];
+      std::string params = std::string(what[6]);
+      boost::split(this->params, params, boost::is_any_of(" "));
+      this->params.erase(this->params.begin());
+      if(std::string(what[7]).length() > 0); this->params.push_back(what[7]);
+      //std::cout << msg.prefix << " " << msg.nickname << " " << msg.user << " " << msg.command << " " << msg.params.size() << std::endl;
+    }
+  }
   std::string raw;
-  std::string host;
-  std::string code;
-  std::string username;
-  std::string message;
+  std::string prefix;
+  std::string nickname;
+  std::string user;
+  std::string hostname;
+  std::string command;
+  std::vector<std::string> params;
 };
 
 class IRC
