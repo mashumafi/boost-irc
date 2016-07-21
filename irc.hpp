@@ -1,13 +1,15 @@
 #ifndef IRC_H
 #define IRC_H
 
-#include<cstring>
-#include<vector>
+#include <cstring>
+#include <vector>
 #include <iostream>
+
 #include <boost/asio.hpp>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -15,6 +17,7 @@ enum Reply
 {
   NONE,
   PRIVMSG,
+  PING,
   RPL_WELCOME = 1,
   RPL_YOURHOST = 2,
   RPL_CREATED = 3,
@@ -178,73 +181,72 @@ enum Reply
   ERR_USERSDONTMATCH = 502
 };
 
-Reply hashit(const std::string& inString)
-{
-  if (inString == "PRIVMSG") return PRIVMSG;
-  return NONE;
-}
+extern Reply hashit(const std::string& inString);
 
 // https://gist.github.com/datagrok/380449c30fd0c5cf2f30
-std::string regex = "^"                     // We'll match the whole line. Start.
-                                            // Optional prefix and the space that separates it
-                                            // from the next thing. Prefix can be a servername,
-                                            // or nick[[!user]@host]
-                    "(?::("                 // This whole set is optional but if it's
-                                            // here it begins with : and ends with space
-                    "([^@!\\ ]*)"           // nick
-                    "(?:"                   // then, optionally user/host
-                    "(?:"                   // but user is optional if host is given
-                    "!([^@]*)"              // !user
-                    ")?"                    // (user was optional)
-                    "@([^\\ ]*)"            // @host
-                    ")?"                    // (host was optional)
-                    ")\\ )?"                // ":nick!user@host " ends
-                    "([^\\ ]+)"             // IRC command (required)
-                                            // Optional args, max 15, space separated. Last arg is
-                                            // the only one that may contain inner spaces. More than
-                                            // 15 words means remainder of words are part of 15th arg.
-                                            // Last arg may be indicated by a colon prefix instead.
-                                            // Pull the leading and last args out separately; we have
-                                            // to split the former on spaces.
-                    "("
-                    "(?:"
-                    "\\ [^:\\ ][^\\ ]*"     // space, no colon, non-space characters
-                    "){0,14}"               // repeated up to 14 times
-                    ")"                     // captured in one reference
-                    "(?:\\ :?(.*))?"        // the rest, does not capture colon.
-                    "$";                    // EOL
 
 class Message
 {
 public:
-  Message()
-  {
-    
-  }
   Message(std::string raw)
   {
-    boost::regex expr{regex};
+    const std::string regex_str = "^"                 // We'll match the whole line. Start.
+                                  "(?:@(.*?)\\ )?"    // Match Tags
+                                                      // Optional prefix and the space that separates it
+                                                      // from the next thing. Prefix can be a servername,
+                                                      // or nick[[!user]@host]
+                                  "(?::("             // This whole set is optional but if it's
+                                                      // here it begins with : and ends with space
+                                  "([^@!\\ ]*)"       // nick
+                                  "(?:"               // then, optionally user/host
+                                  "(?:"               // but user is optional if host is given
+                                  "!([^@]*)"          // !user
+                                  ")?"                // (user was optional)
+                                  "@([^\\ ]*)"        // @host
+                                  ")?"                // (host was optional)
+                                  ")\\ )?"            // ":nick!user@host " ends
+                                  "([^\\ ]+)"         // IRC command (required)
+                                                      // Optional args, max 15, space separated. Last arg is
+                                                      // the only one that may contain inner spaces. More than
+                                                      // 15 words means remainder of words are part of 15th arg.
+                                                      // Last arg may be indicated by a colon prefix instead.
+                                                      // Pull the leading and last args out separately; we have
+                                                      // to split the former on spaces.
+                                  "("
+                                  "(?:"
+                                  "\\ [^:\\ ][^\\ ]*" // space, no colon, non-space characters
+                                  "){0,14}"           // repeated up to 14 times
+                                  ")"                 // captured in one reference
+                                  "(?:\\ :?(.*))?"    // the rest, does not capture colon.
+                                  "$";                // EOL
+    boost::regex expr{regex_str};
     boost::smatch what;
     if (boost::regex_search(raw, what, expr))
     {
       this->raw = raw;
-      this->prefix = what[1];
-      this->nickname = what[2];
-      this->user = what[3];
-      this->hostname = what[4];
-      this->command = what[5];
-      std::string params = std::string(what[6]);
+      this->prefix = what[2];
+      this->nickname = what[3];
+      this->user = what[4];
+      this->host = what[5];
+      this->command = what[6];
+      std::string params = std::string(what[7]);
       boost::split(this->params, params, boost::is_any_of(" "));
       this->params.erase(this->params.begin());
-      if(std::string(what[7]).length() > 0); this->params.push_back(what[7]);
+      if(std::string(what[8]).length() > 0); this->params.push_back(what[8]);
       //std::cout << msg.prefix << " " << msg.nickname << " " << msg.user << " " << msg.command << " " << msg.params.size() << std::endl;
     }
   }
+  
+  std::string toString() const
+  {
+    return str(boost::format("{\r\n    nickname: \"%1%\",\r\n    user: \"%2%\",\r\n    host: \"%3%\",\r\n    command: \"%4%\",\r\n    params: \"%5%\"\r\n}") % nickname % user % host % command % boost::algorithm::join(params, ":"));
+  }
+  
   std::string raw;
   std::string prefix;
   std::string nickname;
   std::string user;
-  std::string hostname;
+  std::string host;
   std::string command;
   std::vector<std::string> params;
 };
@@ -257,6 +259,10 @@ public:
   virtual void login(const std::string, const std::string);
   virtual void send(const std::string, const std::vector<std::string>&);
   virtual void send(std::string);
+  virtual void join(std::string, std::string="");
+  virtual void joined(const Message&);
+  virtual void privmsg(std::string, std::string);
+  virtual void privmsged(const Message&);
 private:
   tcp::socket* s;
 };

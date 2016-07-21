@@ -9,3 +9,8 @@ Twitch::~Twitch()
 {
 
 }
+
+void Twitch::join(std::string channel, std::string key)
+{
+  IRC::join("#" + channel, key);
+}

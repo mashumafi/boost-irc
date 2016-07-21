@@ -8,7 +8,6 @@
 #include <vector>
 
 #include <boost/thread.hpp>
-#include <boost/format.hpp>
 #include <boost/assign/list_of.hpp>
 
 using namespace boost::assign;
@@ -67,6 +66,10 @@ IRC::IRC(std::string host, std::string port)
             switch(hashit(msg.command))
             {
               case PRIVMSG:
+                std::cout << "> " << msg.nickname << ": " << msg.params[1] << std::endl;
+                break;
+              case PING:
+                send("PONG", list_of(":" + msg.params[0]));
                 break;
               case NONE:
               default:
@@ -109,4 +112,31 @@ void IRC::send(std::string raw)
   raw += "\r\n";
   std::cout << "< " << raw;
   boost::asio::write(*s, boost::asio::buffer(raw.c_str(), raw.length()));
+}
+
+void IRC::join(std::string channel, std::string key)
+{
+  send("JOIN", list_of(channel)(key));
+}
+
+void IRC::joined(const Message&)
+{
+  
+}
+
+void IRC::privmsg(std::string msgtarget, std::string text_to_be_sent)
+{
+  send("PRIVMSG", list_of(msgtarget)(text_to_be_sent));
+}
+
+void IRC::privmsged(const Message&)
+{
+  
+}
+
+Reply hashit(const std::string& inString)
+{
+  if (inString == "PRIVMSG") return PRIVMSG;
+  if (inString == "PING") return PING;
+  return NONE;
 }
