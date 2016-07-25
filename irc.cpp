@@ -97,38 +97,53 @@ IRC::~IRC()
   
 }
 
-void IRC::login(const std::string nick, const std::string pass)
+void IRC::login(const std::string& nick, const std::string& pass)
 {
-  pass(pass);
-  nick(nick);
+  this->pass(pass);
+  this->nick(nick);
 }
 
-void IRC::send(const std::string cmd, const std::vector<std::string>& vec)
+void IRC::send(const std::string& cmd, const std::vector<std::string>& vec)
 {
   std::string raw = str(boost::format("%1% %2%") % cmd % boost::algorithm::join(vec, " "));
   send(raw);
 }
 
-void IRC::send(std::string raw)
+void IRC::send(const std::string& raw)
 {
-  raw += "\r\n";
-  std::cout << "< " << raw;
-  boost::asio::write(*s, boost::asio::buffer(raw.c_str(), raw.length()));
+  std::string msg = raw + "\r\n";
+  std::cout << "< " << msg;
+  boost::asio::write(*s, boost::asio::buffer(msg.c_str(), msg.length()));
 }
 
-void IRC::pass(std::string pwd)
+void IRC::pass(const std::string& pwd)
 {
   send("PASS", list_of(pwd));
 }
 
-void IRC::nick(std::string pwd)
+void IRC::nick(const std::string& pwd)
 {
   send("NICK", list_of(pwd));
 }
 
-void IRC::join(std::string channel, std::string key)
+void IRC::quit(const std::string& pwd)
 {
-  send("JOIN", list_of(channel)(key));
+  send("QUIT", list_of(pwd));
+}
+
+void IRC::join(const std::vector<std::string>& channel, const std::vector<std::string>& keys)
+{
+  join(boost::algorithm::join(channel, ","), boost::algorithm::join(keys, ","));
+}
+
+void IRC::join(const std::string& channel, const std::string& keys)
+{
+  send("JOIN", list_of(channel)(keys));
+}
+
+void IRC::join0()
+{
+  send("JOIN", list_of("0"));
 }
 
 void IRC::joined(const Message&)
@@ -136,7 +151,17 @@ void IRC::joined(const Message&)
   
 }
 
-void IRC::privmsg(std::string msgtarget, std::string text_to_be_sent)
+void IRC::part(const std::vector<std::string>& channel, const std::string& msg)
+{
+  part(boost::algorithm::join(channel, ","), msg);
+}
+
+void IRC::part(const std::string& channel, const std::string& msg)
+{
+  send("PART", list_of(channel)(msg));
+}
+
+void IRC::privmsg(const std::string& msgtarget, const std::string& text_to_be_sent)
 {
   send("PRIVMSG", list_of(msgtarget)(text_to_be_sent));
 }

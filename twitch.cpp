@@ -10,7 +10,22 @@ Twitch::~Twitch()
 
 }
 
-void Twitch::join(std::string channel, std::string key)
+void Twitch::join(const std::string& channel, const std::string& keys)
 {
-  IRC::join("#" + channel, key);
+  IRC::join("#" + channel, keys);
+}
+
+void Twitch::join(const std::vector<std::string>& channel, const std::vector<std::string>& keys)
+{
+  join(boost::algorithm::join(channel, ",#"), boost::algorithm::join(keys, ","));
+}
+
+void Twitch::part(const std::vector<std::string>& channel, const std::string& msg)
+{
+  join(boost::algorithm::join(channel, ",#"), msg);
+}
+
+void Twitch::part(const std::string& channel, const std::string& msg)
+{
+  IRC::part("#" + channel, msg);
 }

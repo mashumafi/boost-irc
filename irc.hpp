@@ -286,15 +286,45 @@ class IRC
 public:
   IRC(std::string, std::string);
   virtual ~IRC();
-  virtual void login(const std::string, const std::string);
-  virtual void send(const std::string, const std::vector<std::string>&);
-  virtual void send(std::string);
-  virtual void pass(std::string);
-  virtual void pass(std::string);
-  virtual void join(std::string, std::string="");
+  
+  virtual void login(const std::string&, const std::string&);
+  
+  virtual void send(const std::string&, const std::vector<std::string>&);
+  virtual void send(const std::string&);
+  
+  virtual void pass(const std::string&);
+  virtual void nick(const std::string&);
+  
+  virtual void quit(const std::string& msg="");
+  
+  virtual void join0();
+  virtual void join(const std::vector<std::string>&, const std::vector<std::string>& keys=std::vector<std::string>());
+  virtual void join(const std::string&, const std::string& keys="");
   virtual void joined(const Message&);
-  virtual void privmsg(std::string, std::string);
+  
+  virtual void part(const std::vector<std::string>&, const std::string& msg="");
+  virtual void part(const std::string&, const std::string& msg="");
+  
+  virtual void mode();
+  virtual void topic();
+  virtual void names();
+  virtual void list();
+  virtual void invite();
+  virtual void kick();
+  
+  virtual void privmsg(const std::string&, const std::string&);
   virtual void privmsged(const Message&);
+  
+  virtual void notice();
+  virtual void motd();
+  virtual void version();
+  virtual void stats();
+  virtual void links();
+  virtual void time();
+  virtual void connect();
+  virtual void trace();
+  virtual void admin();
+  virtual void info();
 private:
   tcp::socket* s;
 };
