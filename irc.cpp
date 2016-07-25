@@ -29,48 +29,43 @@ IRC::IRC(const std::string& host, const std::string& port)
     
     boost::thread t([this]
     {
-      std::string buff;
-      char reply[max_length];
       size_t reply_length;
       do
       {
-        reply_length = boost::asio::read(*s, boost::asio::buffer(reply, max_length));
-        buff += reply;
-        int idx;
-        while((idx = buff.find("\r\n")) > 0)
+        boost::asio::streambuf response;
+        reply_length = boost::asio::read_until(*s, response, "\r\n");
+        std::istream response_stream(&response);
+        std::string line;
+        getline(response_stream, line);
+        
+        Message msg(line);
+        
+        try
         {
-          std::string line = buff.substr(0, idx);
-          
-          Message msg(line);
-          
-          try
+          this->reply(msg, static_cast<Reply>(stoi(msg.command)));
+        }
+        catch(std::invalid_argument)
+        {
+          switch(hashit(msg.command))
           {
-            this->reply(msg, static_cast<Reply>(stoi(msg.command)));
+            case PRIVMSG:
+              privmsg(msg, msg.params[0], msg.params[1]);
+              break;
+            case PING:
+              if(msg.params.size() == 1)
+              {
+                ping(msg, msg.params[0]);
+              }
+              else if(msg.params.size() > 1)
+              {
+                ping(msg, msg.params[0], msg.params[1]);
+              }
+              break;
+            case NONE:
+            default:
+              std::cout << "> " << msg.raw() << std::endl;
+              break;
           }
-          catch(std::invalid_argument)
-          {
-            switch(hashit(msg.command))
-            {
-              case PRIVMSG:
-                privmsg(msg, msg.params[0], msg.params[1]);
-                break;
-              case PING:
-                if(msg.params.size() == 1)
-                {
-                  ping(msg, msg.params[0]);
-                }
-                else if(msg.params.size() > 1)
-                {
-                  ping(msg, msg.params[0], msg.params[1]);
-                }
-                break;
-              case NONE:
-              default:
-                std::cout << "> " << msg.raw() << std::endl;
-                break;
-            }
-          }
-          buff = buff.substr(idx + 2);
         }
         
       } while(reply_length > 0);
