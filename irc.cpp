@@ -59,7 +59,7 @@ IRC::IRC(std::string host, std::string port)
                 send("CAP REQ :twitch.tv/tags");
                 break;
               default:
-                std::cout << "> " << msg.raw << std::endl;
+                std::cout << "> " << msg.raw() << std::endl;
                 break;
             }
           }
@@ -75,7 +75,7 @@ IRC::IRC(std::string host, std::string port)
                 break;
               case NONE:
               default:
-                std::cout << "> " << msg.raw << std::endl;
+                std::cout << "> " << msg.raw() << std::endl;
                 break;
             }
           }
@@ -95,6 +95,16 @@ IRC::IRC(std::string host, std::string port)
 IRC::~IRC()
 {
   
+}
+  
+const std::string IRC::pfx(void) const
+{
+  return "";
+}
+
+const std::string IRC::pfx(const std::string& channel) const
+{
+  return pfx() + channel;
 }
 
 void IRC::login(const std::string& nick, const std::string& pass)
@@ -126,9 +136,9 @@ void IRC::nick(const std::string& pwd)
   send("NICK", list_of(pwd));
 }
 
-void IRC::quit(const std::string& pwd)
+void IRC::quit(const std::string& msg)
 {
-  send("QUIT", list_of(pwd));
+  send("QUIT", list_of(msg));
 }
 
 void IRC::join(const std::vector<std::string>& channel, const std::vector<std::string>& keys)
@@ -146,7 +156,7 @@ void IRC::join0()
   send("JOIN", list_of("0"));
 }
 
-void IRC::joined(const Message&)
+void IRC::joined(const Message& msg)
 {
   
 }
@@ -161,6 +171,52 @@ void IRC::part(const std::string& channel, const std::string& msg)
   send("PART", list_of(channel)(msg));
 }
 
+void IRC::parted(const Message&)
+{
+}
+
+
+void IRC::mode(const std::string& channel, const std::string&, const std::string& modes, const std::string& modeparams)
+{
+  
+}
+
+void IRC::topic(const std::string& channel, const std::string& topic)
+{
+  
+}
+
+void IRC::names(const std::vector<std::string>& channels, const std::string& target)
+{
+  
+}
+
+void IRC::names(const std::string& channel, const std::string& target)
+{
+  
+}
+
+void IRC::list(const std::vector<std::string>& channels, const std::string& target)
+{
+  
+}
+
+void IRC::list(const std::string& channel, const std::string& target)
+{
+  
+}
+
+void IRC::invite(const std::string& nickname, const std::string& channel)
+{
+  
+}
+
+void IRC::kick(const std::vector<std::string>& channels, const std::vector<std::string>& users, const std::string& comment)
+{
+  
+}
+  
+
 void IRC::privmsg(const std::string& msgtarget, const std::string& text_to_be_sent)
 {
   send("PRIVMSG", list_of(msgtarget)(text_to_be_sent));
@@ -169,6 +225,86 @@ void IRC::privmsg(const std::string& msgtarget, const std::string& text_to_be_se
 void IRC::privmsged(const Message& msg)
 {
   std::cout << "> " << msg.nickname << ": " << msg.params[1] << std::endl;
+}
+
+void IRC::notice(const std::string& msgtarget, const std::string& text)
+{
+  
+}
+
+void IRC::motd(const std::string& target)
+{
+  
+}
+
+void IRC::lusers(const std::string& mask, const std::string& target)
+{
+  
+}
+
+void IRC::version(const std::string& target)
+{
+  
+}
+
+void IRC::stats(const std::string& query, const std::string& target)
+{
+  
+}
+
+void IRC::links(const std::string& remote_server, const std::string& server_mask)
+{
+  
+}
+
+void IRC::time(const std::string& target)
+{
+  
+}
+
+void IRC::connect(const std::string& target_server, const std::string& port, const std::string& remote_server)
+{
+  
+}
+
+void IRC::trace(const std::string& target)
+{
+  
+}
+
+void IRC::admin(const std::string& target)
+{
+  
+}
+
+void IRC::info(const std::string& target)
+{
+  
+}
+
+void IRC::kill()
+{
+  
+}
+
+void IRC::ping()
+{
+  
+}
+
+void IRC::pinged(const Message& msg)
+{
+  
+}
+
+void IRC::pong()
+{
+  
+}
+
+void IRC::error(const std::string& error_message)
+{
+  
 }
 
 Reply hashit(const std::string& inString)
