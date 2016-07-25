@@ -1,3 +1,6 @@
+# https://www.johnlamp.net/cmake-tutorial-6-realistically-getting-a-boost.html
+# Boost_DIR=/home/ubuntu/workspace/boost_1_61_0/
+
 cmake_minimum_required(VERSION 2.8)
 find_package (Threads)
 set(Boost_USE_STATIC_LIBS OFF)
