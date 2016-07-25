@@ -224,6 +224,29 @@ public:
     if (boost::regex_search(raw, what, expr))
     {
       this->raw = raw;
+      std::string tags_str(what[1]);
+      std::vector<std::string> tags;
+      boost::split(tags, tags_str, boost::is_any_of(";"));
+      for(uint i = 0; i < tags.size(); i++)
+      {
+        std::vector<std::string> tag;
+        boost::split(tag, tags[i], boost::is_any_of("="));
+        if(tag[0].length() > 0)
+        {
+          if(tag.size() == 2)
+          {
+            this->tags.insert(std::pair<std::string, std::string>(tag[0], tag[1]));
+          }
+          else if(tag.size() == 1)
+          {
+            this->tags.insert(std::pair<std::string, std::string>(tag[0], ""));
+          }
+          else
+          {
+            std::cout << tags[i] << std::endl;
+          }
+        }
+      }
       this->prefix = what[2];
       this->nickname = what[3];
       this->user = what[4];
@@ -239,10 +262,17 @@ public:
   
   std::string toString() const
   {
-    return str(boost::format("{\r\n    nickname: \"%1%\",\r\n    user: \"%2%\",\r\n    host: \"%3%\",\r\n    command: \"%4%\",\r\n    params: \"%5%\"\r\n}") % nickname % user % host % command % boost::algorithm::join(params, ":"));
+    std::string tags = "    \"tags\": [\r\n";
+    for(auto elem : this->tags)
+    {
+      tags += str(boost::format("        \"%1%\": \"%2%\",\r\n") % elem.first % elem.second);
+    }
+    tags += "    ]\r\n";
+    return str(boost::format("{\r\n    \"nickname\": \"%1%\",\r\n    \"user\": \"%2%\",\r\n    \"host\": \"%3%\",\r\n    \"command\": \"%4%\",\r\n    \"params\": \"%5%\",\r\n%6%}") % nickname % user % host % command % boost::algorithm::join(params, ":") % tags);
   }
   
   std::string raw;
+  std::map<std::string, std::string> tags;
   std::string prefix;
   std::string nickname;
   std::string user;

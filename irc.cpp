@@ -54,7 +54,9 @@ IRC::IRC(std::string host, std::string port)
               case RPL_MYINFO:
               case RPL_MOTDSTART:
               case RPL_MOTD:
+                break;
               case RPL_ENDOFMOTD:
+                send("CAP REQ :twitch.tv/tags");
                 break;
               default:
                 std::cout << "> " << msg.raw << std::endl;
