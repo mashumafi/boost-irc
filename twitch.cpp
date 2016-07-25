@@ -10,22 +10,22 @@ Twitch::~Twitch()
 
 }
 
-void Twitch::join(const std::string& channel, const std::string& keys)
+void Twitch::reply(const Message& msg, const Reply code)
 {
-  IRC::join("#" + channel, keys);
-}
-
-void Twitch::join(const std::vector<std::string>& channel, const std::vector<std::string>& keys)
-{
-  join(boost::algorithm::join(channel, ",#"), boost::algorithm::join(keys, ","));
-}
-
-void Twitch::part(const std::vector<std::string>& channel, const std::string& msg)
-{
-  join(boost::algorithm::join(channel, ",#"), msg);
-}
-
-void Twitch::part(const std::string& channel, const std::string& msg)
-{
-  IRC::part("#" + channel, msg);
+  switch(code)
+  {
+    case RPL_WELCOME:
+    case RPL_YOURHOST:
+    case RPL_CREATED:
+    case RPL_MYINFO:
+    case RPL_MOTDSTART:
+    case RPL_MOTD:
+      break;
+    case RPL_ENDOFMOTD:
+      send("CAP REQ :twitch.tv/tags");
+      break;
+    default:
+      std::cout << "> " << msg.raw() << std::endl;
+      break;
+  }
 }

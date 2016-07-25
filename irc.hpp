@@ -272,11 +272,11 @@ public:
     tags += "    ]\r\n";
     return str(boost::format("{\r\n    \"nickname\": \"%1%\",\r\n    \"user\": \"%2%\",\r\n    \"host\": \"%3%\",\r\n    \"command\": \"%4%\",\r\n    \"params\": \"%5%\",\r\n%6%}") % nickname % user % host % command % boost::algorithm::join(params, ":") % tags);
   }
-  const std::string& raw()
+  const std::string& raw() const
   {
     return m_raw;
   }
-  const std::map<std::string, std::string>& tags()
+  const std::map<std::string, std::string>& tags() const
   {
     return m_tags;
   }
@@ -295,13 +295,8 @@ public:
 class IRC
 {
 public:
-  IRC(std::string, std::string);
+  IRC(const std::string&, const std::string&);
   virtual ~IRC();
-  
-  const std::string pfx(void) const;
-  const std::string pfx(const std::string&) const;
-  
-  virtual void login(const std::string&, const std::string&);
   
   virtual void send(const std::string&, const std::vector<std::string>&);
   virtual void send(const std::string&);
@@ -328,11 +323,9 @@ public:
   virtual void join0();
   virtual void join(const std::vector<std::string>&, const std::vector<std::string>& keys=std::vector<std::string>());
   virtual void join(const std::string&, const std::string& keys="");
-  virtual void joined(const Message&);
   // 3.2.2 Part message
   virtual void part(const std::vector<std::string>&, const std::string& msg="");
   virtual void part(const std::string&, const std::string& msg="");
-  virtual void parted(const Message&);
   // 3.2.3 Channel mode message
   virtual void mode(const std::string& channel, const std::string&, const std::string& modes, const std::string& modeparams);
   // 3.2.4 Topic message
@@ -351,7 +344,6 @@ public:
   // 3.3.0 Sending messages
   // 3.3.1 Private messages
   virtual void privmsg(const std::string&, const std::string&);
-  virtual void privmsged(const Message&);
   // 3.3.2 Notice
   virtual void notice(const std::string& msgtarget, const std::string& text);
   
@@ -387,12 +379,18 @@ public:
   // 3.7.1  Kill message
   virtual void kill();
   // 3.7.2  Ping message
-  virtual void ping();
-  virtual void pinged(const Message& msg);
+  virtual void ping(const std::string& server, const std::string& server2 = "");
   // 3.7.3  Pong message
-  virtual void pong();
+  virtual void pong(const std::string& server, const std::string& server2 = "");
   // 3.7.3  Error message
   virtual void error(const std::string& error_message);
+protected:
+  virtual void reply(const Message&, const Reply code);
+  
+  virtual void join(const Message&);
+  virtual void ping(const Message& msg, const std::string& server, const std::string& server2 = "");
+  virtual void privmsg(const Message&, const std::string&, const std::string&);
+  virtual void part(const Message&);
   
 private:
   tcp::socket* s;

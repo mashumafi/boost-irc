@@ -14,7 +14,7 @@ using namespace boost::assign;
 
 enum { max_length = 32 };
 
-IRC::IRC(std::string host, std::string port)
+IRC::IRC(const std::string& host, const std::string& port)
 {
   try
   {
@@ -45,33 +45,24 @@ IRC::IRC(std::string host, std::string port)
           
           try
           {
-            int code = stoi(msg.command);
-            switch(code)
-            {
-              case RPL_WELCOME:
-              case RPL_YOURHOST:
-              case RPL_CREATED:
-              case RPL_MYINFO:
-              case RPL_MOTDSTART:
-              case RPL_MOTD:
-                break;
-              case RPL_ENDOFMOTD:
-                send("CAP REQ :twitch.tv/tags");
-                break;
-              default:
-                std::cout << "> " << msg.raw() << std::endl;
-                break;
-            }
+            this->reply(msg, static_cast<Reply>(stoi(msg.command)));
           }
           catch(std::invalid_argument)
           {
             switch(hashit(msg.command))
             {
               case PRIVMSG:
-                privmsged(msg);
+                privmsg(msg, msg.params[0], msg.params[1]);
                 break;
               case PING:
-                send("PONG", list_of(":" + msg.params[0]));
+                if(msg.params.size() == 1)
+                {
+                  ping(msg, msg.params[0]);
+                }
+                else if(msg.params.size() > 1)
+                {
+                  ping(msg, msg.params[0], msg.params[1]);
+                }
                 break;
               case NONE:
               default:
@@ -96,22 +87,6 @@ IRC::~IRC()
 {
   
 }
-  
-const std::string IRC::pfx(void) const
-{
-  return "";
-}
-
-const std::string IRC::pfx(const std::string& channel) const
-{
-  return pfx() + channel;
-}
-
-void IRC::login(const std::string& nick, const std::string& pass)
-{
-  this->pass(pass);
-  this->nick(nick);
-}
 
 void IRC::send(const std::string& cmd, const std::vector<std::string>& vec)
 {
@@ -129,6 +104,10 @@ void IRC::send(const std::string& raw)
 void IRC::pass(const std::string& pwd)
 {
   send("PASS", list_of(pwd));
+}
+
+void IRC::reply(const Message& msg, const Reply code)
+{
 }
 
 void IRC::nick(const std::string& pwd)
@@ -156,7 +135,7 @@ void IRC::join0()
   send("JOIN", list_of("0"));
 }
 
-void IRC::joined(const Message& msg)
+void IRC::join(const Message& msg)
 {
   
 }
@@ -171,7 +150,7 @@ void IRC::part(const std::string& channel, const std::string& msg)
   send("PART", list_of(channel)(msg));
 }
 
-void IRC::parted(const Message&)
+void IRC::part(const Message&)
 {
 }
 
@@ -215,16 +194,15 @@ void IRC::kick(const std::vector<std::string>& channels, const std::vector<std::
 {
   
 }
-  
 
 void IRC::privmsg(const std::string& msgtarget, const std::string& text_to_be_sent)
 {
-  send("PRIVMSG", list_of(msgtarget)(text_to_be_sent));
+  send("PRIVMSG", list_of(msgtarget)(":" + text_to_be_sent));
 }
 
-void IRC::privmsged(const Message& msg)
+void IRC::privmsg(const Message& msg, const std::string& msgtarget, const std::string& text_to_be_sent)
 {
-  std::cout << "> " << msg.nickname << ": " << msg.params[1] << std::endl;
+  std::cout << msgtarget << "> " << msg.nickname << ": " << text_to_be_sent << std::endl;
 }
 
 void IRC::notice(const std::string& msgtarget, const std::string& text)
@@ -287,19 +265,19 @@ void IRC::kill()
   
 }
 
-void IRC::ping()
+void IRC::ping(const std::string& server, const std::string& server2)
 {
-  
+  send("PING", list_of(server)(server2));
 }
 
-void IRC::pinged(const Message& msg)
+void IRC::ping(const Message& msg, const std::string& server, const std::string& server2)
 {
-  
+  pong(server, server2);
 }
 
-void IRC::pong()
+void IRC::pong(const std::string& server, const std::string& server2)
 {
-  
+  send("PONG", list_of(server)(server2));
 }
 
 void IRC::error(const std::string& error_message)
