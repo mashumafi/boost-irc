@@ -9,7 +9,8 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   Twitch irc;
-  irc.login(std::string(argv[1]), std::string(argv[2]));
+  irc.pass(std::string(argv[1]));
+  irc.nick(std::string(argv[2]));
   char line[64];
   while (std::cin.getline(line, 64))
   {
