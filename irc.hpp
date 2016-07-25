@@ -289,6 +289,8 @@ public:
   virtual void login(const std::string, const std::string);
   virtual void send(const std::string, const std::vector<std::string>&);
   virtual void send(std::string);
+  virtual void pass(std::string);
+  virtual void pass(std::string);
   virtual void join(std::string, std::string="");
   virtual void joined(const Message&);
   virtual void privmsg(std::string, std::string);

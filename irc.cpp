@@ -68,7 +68,7 @@ IRC::IRC(std::string host, std::string port)
             switch(hashit(msg.command))
             {
               case PRIVMSG:
-                std::cout << "> " << msg.nickname << ": " << msg.params[1] << std::endl;
+                privmsged(msg);
                 break;
               case PING:
                 send("PONG", list_of(":" + msg.params[0]));
@@ -99,8 +99,8 @@ IRC::~IRC()
 
 void IRC::login(const std::string nick, const std::string pass)
 {
-  send("PASS", list_of(pass));
-  send("NICK", list_of(nick));
+  pass(pass);
+  nick(nick);
 }
 
 void IRC::send(const std::string cmd, const std::vector<std::string>& vec)
@@ -114,6 +114,16 @@ void IRC::send(std::string raw)
   raw += "\r\n";
   std::cout << "< " << raw;
   boost::asio::write(*s, boost::asio::buffer(raw.c_str(), raw.length()));
+}
+
+void IRC::pass(std::string pwd)
+{
+  send("PASS", list_of(pwd));
+}
+
+void IRC::nick(std::string pwd)
+{
+  send("NICK", list_of(pwd));
 }
 
 void IRC::join(std::string channel, std::string key)
@@ -131,9 +141,9 @@ void IRC::privmsg(std::string msgtarget, std::string text_to_be_sent)
   send("PRIVMSG", list_of(msgtarget)(text_to_be_sent));
 }
 
-void IRC::privmsged(const Message&)
+void IRC::privmsged(const Message& msg)
 {
-  
+  std::cout << "> " << msg.nickname << ": " << msg.params[1] << std::endl;
 }
 
 Reply hashit(const std::string& inString)
