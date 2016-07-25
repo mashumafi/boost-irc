@@ -23,6 +23,7 @@ void Twitch::reply(const Message& msg, const Reply code)
       break;
     case RPL_ENDOFMOTD:
       send("CAP REQ :twitch.tv/tags");
+      break;
     default:
       std::cout << "> " << msg.raw() << std::endl;
       break;

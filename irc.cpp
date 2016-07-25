@@ -12,8 +12,6 @@
 
 using namespace boost::assign;
 
-enum { max_length = 32 };
-
 IRC::IRC(const std::string& host, const std::string& port)
 {
   try
@@ -36,37 +34,39 @@ IRC::IRC(const std::string& host, const std::string& port)
         reply_length = boost::asio::read_until(*s, response, "\r\n");
         std::istream response_stream(&response);
         std::string line;
-        getline(response_stream, line);
-        
-        Message msg(line);
-        
-        try
+        do
         {
-          this->reply(msg, static_cast<Reply>(stoi(msg.command)));
-        }
-        catch(std::invalid_argument)
-        {
-          switch(hashit(msg.command))
+          getline(response_stream, line);
+          
+          Message msg(line);
+          try
           {
-            case PRIVMSG:
-              privmsg(msg, msg.params[0], msg.params[1]);
-              break;
-            case PING:
-              if(msg.params.size() == 1)
-              {
-                ping(msg, msg.params[0]);
-              }
-              else if(msg.params.size() > 1)
-              {
-                ping(msg, msg.params[0], msg.params[1]);
-              }
-              break;
-            case NONE:
-            default:
-              std::cout << "> " << msg.raw() << std::endl;
-              break;
+            this->reply(msg, static_cast<Reply>(stoi(msg.command)));
           }
-        }
+          catch(std::invalid_argument)
+          {
+            switch(hashit(msg.command))
+            {
+              case PRIVMSG:
+                privmsg(msg, msg.params[0], msg.params[1]);
+                break;
+              case PING:
+                if(msg.params.size() == 1)
+                {
+                  ping(msg, msg.params[0]);
+                }
+                else if(msg.params.size() > 1)
+                {
+                  ping(msg, msg.params[0], msg.params[1]);
+                }
+                break;
+              case NONE:
+              default:
+                std::cout << "> " << msg.raw() << std::endl;
+                break;
+            }
+          }
+        } while(response.size() > 0);
         
       } while(reply_length > 0);
       std::cout << "ended!";
@@ -148,7 +148,6 @@ void IRC::part(const std::string& channel, const std::string& msg)
 void IRC::part(const Message&)
 {
 }
-
 
 void IRC::mode(const std::string& channel, const std::string&, const std::string& modes, const std::string& modeparams)
 {
