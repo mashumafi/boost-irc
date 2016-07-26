@@ -9,6 +9,7 @@
 
 #include <boost/thread.hpp>
 #include <boost/assign/list_of.hpp>
+#include <boost/algorithm/string.hpp>
 
 using namespace boost::assign;
 
@@ -85,9 +86,9 @@ void IRC::join0()
   send("JOIN", list_of("0"));
 }
 
-void IRC::join(const Message& msg, const std::vector<std::string>& channel, const std::vector<std::string>& keys)
+void IRC::join(const Message& msg, const std::vector<std::string>& channels, const std::vector<std::string>& keys)
 {
-  
+  std::cout << boost::format("%1% joined %2%") % msg.nickname % boost::algorithm::join(channels, ",") << std::endl;
 }
 
 void IRC::part(const std::vector<std::string>& channel, const std::string& msg)
@@ -238,6 +239,7 @@ Reply hashit(const std::string& inString)
 {
   if (inString == "PRIVMSG") return PRIVMSG;
   if (inString == "PING") return PING;
+  if (inString == "JOIN") return JOIN;
   return NONE;
 }
 
@@ -280,9 +282,12 @@ void IRC::read()
             switch(hashit(msg.command))
             {
               case PRIVMSG:
+              {
                 privmsg(msg, msg.params[0], msg.params[1]);
                 break;
+              }
               case PING:
+              {
                 if(msg.params.size() == 1)
                 {
                   ping(msg, msg.params[0]);
@@ -292,10 +297,28 @@ void IRC::read()
                   ping(msg, msg.params[0], msg.params[1]);
                 }
                 break;
+              }
+              case JOIN:
+              {
+                std::vector<std::string> channels;
+                std::vector<std::string> keys;
+                if(msg.params.size() > 0)
+                {
+                  boost::split(channels, msg.params[0], boost::is_any_of(","));
+                }
+                if(msg.params.size() > 1)
+                {
+                  boost::split(keys, msg.params[1], boost::is_any_of(","));
+                }
+                join(msg, channels, keys);
+                break;
+              }
               case NONE:
               default:
+              {
                 std::cout << "> " << msg.raw() << std::endl;
                 break;
+              }
             }
           }
         } while(response.size() > 0);

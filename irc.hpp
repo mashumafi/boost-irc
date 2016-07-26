@@ -20,6 +20,7 @@ enum Reply
   NONE,
   PRIVMSG,
   PING,
+  JOIN,
   RPL_WELCOME = 1,
   RPL_YOURHOST = 2,
   RPL_CREATED = 3,
@@ -324,9 +325,9 @@ public:
   // 3.2.1 Join message
   virtual void join0();
   virtual void join(const std::vector<std::string>&, const std::vector<std::string>& keys=std::vector<std::string>());
-  virtual void join(const std::string&, const std::string& keys="");
+  virtual void join(const std::string&, const std::string& keys = "");
   // 3.2.2 Part message
-  virtual void part(const std::vector<std::string>&, const std::string& msg="");
+  virtual void part(const std::vector<std::string>&, const std::string& msg = "");
   virtual void part(const std::string&, const std::string& msg="");
   // 3.2.3 Channel mode message
   virtual void mode(const std::string& channel, const std::string&, const std::string& modes, const std::string& modeparams);
