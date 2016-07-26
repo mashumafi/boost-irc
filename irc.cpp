@@ -46,7 +46,7 @@ void IRC::send(const std::string& raw)
   });
 }
 
-bool IRC::message(const Message& msg, const Reply code)
+bool IRC::message(const Message& msg)
 {
   switch(msg.command[0])
   {
