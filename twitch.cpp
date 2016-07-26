@@ -1,8 +1,9 @@
 #include "twitch.hpp"
+#include "json.hpp"
 
-Twitch::Twitch() : IRC("irc.chat.twitch.tv", "6667")
+Twitch::Twitch(const std::string& nick, const std::string& pass) : IRC("irc.chat.twitch.tv", "6667", nick, pass)
 {
-
+  
 }
 
 Twitch::~Twitch()
@@ -12,6 +13,11 @@ Twitch::~Twitch()
 
 void Twitch::reply(const Message& msg, const Reply code)
 {
+  json("tmi.twitch.tv", "/group/user/voyboy/chatters", [] (const int code, const boost::property_tree::ptree& res)
+  {
+    boost::property_tree::ptree chatter_count = res.get_child("chatter_count");
+    std::cout << chatter_count.get_value<int>() << std::endl;
+  });
   switch(code)
   {
     case RPL_WELCOME:
@@ -28,4 +34,9 @@ void Twitch::reply(const Message& msg, const Reply code)
       std::cout << "> " << msg.raw() << std::endl;
       break;
   }
+}
+
+void Twitch::privmsg(const Message& msg, const std::string& msgtarget, const std::string& text_to_be_sent)
+{
+  IRC::privmsg(msg, msgtarget, text_to_be_sent);
 }

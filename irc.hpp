@@ -295,8 +295,10 @@ public:
 class IRC
 {
 public:
-  IRC(const std::string&, const std::string&);
+  IRC(const std::string& host, const std::string& port, const std::string& nick, const std::string& pass);
   virtual ~IRC();
+  
+  void close();
   
   virtual void send(const std::string&, const std::vector<std::string>&);
   virtual void send(const std::string&);
@@ -387,13 +389,20 @@ public:
 protected:
   virtual void reply(const Message&, const Reply code);
   
-  virtual void join(const Message&);
+  virtual void join(const Message&, const std::vector<std::string>& channel, const std::vector<std::string>& keys);
   virtual void ping(const Message& msg, const std::string& server, const std::string& server2 = "");
   virtual void privmsg(const Message&, const std::string&, const std::string&);
   virtual void part(const Message&);
+  virtual void connected(void);
   
 private:
+  void connect(tcp::resolver::iterator endpoint_iterator);
+  void read();
   tcp::socket* s;
+  boost::asio::io_service io_service;
+  boost::asio::streambuf response;
+  std::string m_nick;
+  std::string m_pass;
 };
 
 #endif

@@ -12,65 +12,18 @@
 
 using namespace boost::assign;
 
-IRC::IRC(const std::string& host, const std::string& port)
+IRC::IRC(const std::string& host, const std::string& port, const std::string& nick, const std::string& pass) : m_nick(nick), m_pass(pass)
 {
   try
   {
-    boost::asio::io_service io_service;
-  
     tcp::resolver resolver(io_service);
     tcp::resolver::query query(tcp::v4(), host, port);
     tcp::resolver::iterator iterator = resolver.resolve(query);
   
     s = new tcp::socket(io_service);
-    s->connect(*iterator);
+    connect(iterator);
+    boost::thread t([this](){ io_service.run(); });
     
-    boost::thread t([this]
-    {
-      size_t reply_length;
-      do
-      {
-        boost::asio::streambuf response;
-        reply_length = boost::asio::read_until(*s, response, "\r\n");
-        std::istream response_stream(&response);
-        std::string line;
-        do
-        {
-          getline(response_stream, line);
-          
-          Message msg(line);
-          try
-          {
-            this->reply(msg, static_cast<Reply>(stoi(msg.command)));
-          }
-          catch(std::invalid_argument)
-          {
-            switch(hashit(msg.command))
-            {
-              case PRIVMSG:
-                privmsg(msg, msg.params[0], msg.params[1]);
-                break;
-              case PING:
-                if(msg.params.size() == 1)
-                {
-                  ping(msg, msg.params[0]);
-                }
-                else if(msg.params.size() > 1)
-                {
-                  ping(msg, msg.params[0], msg.params[1]);
-                }
-                break;
-              case NONE:
-              default:
-                std::cout << "> " << msg.raw() << std::endl;
-                break;
-            }
-          }
-        } while(response.size() > 0);
-        
-      } while(reply_length > 0);
-      std::cout << "ended!";
-    });
   }
   catch (std::exception& e)
   {
@@ -85,15 +38,17 @@ IRC::~IRC()
 
 void IRC::send(const std::string& cmd, const std::vector<std::string>& vec)
 {
-  std::string raw = str(boost::format("%1% %2%") % cmd % boost::algorithm::join(vec, " "));
-  send(raw);
+  send(str(boost::format("%1% %2%") % cmd % boost::algorithm::join(vec, " ")));
 }
 
 void IRC::send(const std::string& raw)
 {
-  std::string msg = raw + "\r\n";
-  std::cout << "< " << msg;
-  boost::asio::write(*s, boost::asio::buffer(msg.c_str(), msg.length()));
+  std::string* msg = new std::string(raw + "\r\n");
+  boost::asio::async_write(*s, boost::asio::buffer(msg->c_str(), msg->length()), [msg] (boost::system::error_code ec, std::size_t)
+  {
+    std::cout << "< " << *msg;
+    delete msg;
+  });
 }
 
 void IRC::pass(const std::string& pwd)
@@ -130,7 +85,7 @@ void IRC::join0()
   send("JOIN", list_of("0"));
 }
 
-void IRC::join(const Message& msg)
+void IRC::join(const Message& msg, const std::vector<std::string>& channel, const std::vector<std::string>& keys)
 {
   
 }
@@ -284,4 +239,82 @@ Reply hashit(const std::string& inString)
   if (inString == "PRIVMSG") return PRIVMSG;
   if (inString == "PING") return PING;
   return NONE;
+}
+
+void IRC::connect(tcp::resolver::iterator endpoint_iterator)
+{
+  boost::asio::async_connect(*s, endpoint_iterator,
+    [this](boost::system::error_code ec, tcp::resolver::iterator)
+    {
+      if (!ec)
+      {
+        read();
+        connected();
+      }
+      else
+      {
+      }
+    });
+}
+
+void IRC::read()
+{
+  boost::asio::async_read_until(*s, response, "\r\n",
+    [this](boost::system::error_code ec, std::size_t)
+    {
+      if (!ec)
+      {
+        std::istream response_stream(&response);
+        std::string line;
+        do
+        {
+          getline(response_stream, line);
+          
+          Message msg(line);
+          try
+          {
+            this->reply(msg, static_cast<Reply>(stoi(msg.command)));
+          }
+          catch(std::invalid_argument)
+          {
+            switch(hashit(msg.command))
+            {
+              case PRIVMSG:
+                privmsg(msg, msg.params[0], msg.params[1]);
+                break;
+              case PING:
+                if(msg.params.size() == 1)
+                {
+                  ping(msg, msg.params[0]);
+                }
+                else if(msg.params.size() > 1)
+                {
+                  ping(msg, msg.params[0], msg.params[1]);
+                }
+                break;
+              case NONE:
+              default:
+                std::cout << "> " << msg.raw() << std::endl;
+                break;
+            }
+          }
+        } while(response.size() > 0);
+        read();
+      }
+      else
+      {
+        s->close();
+      }
+    });
+}
+
+void IRC::connected()
+{
+  pass(m_pass);
+  nick(m_nick);
+}
+
+void IRC::close()
+{
+  io_service.post([this]() { s->close(); });
 }

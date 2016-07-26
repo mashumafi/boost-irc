@@ -8,9 +8,7 @@ int main(int argc, char* argv[]) {
     std::cerr << "Usage: bot username password\n";
     return 1;
   }
-  Twitch irc;
-  irc.pass(std::string(argv[2]));
-  irc.nick(std::string(argv[1]));
+  Twitch irc(argv[1], argv[2]);
   char line[64];
   while (std::cin.getline(line, 64))
   {
