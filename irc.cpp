@@ -253,14 +253,6 @@ void IRC::error(const std::string& error_message)
   
 }
 
-Reply hashit(const std::string& inString)
-{
-  if (inString == "PRIVMSG") return PRIVMSG;
-  if (inString == "PING") return PING;
-  if (inString == "JOIN") return JOIN;
-  return NONE;
-}
-
 void IRC::connect(tcp::resolver::iterator endpoint_iterator)
 {
   boost::asio::async_connect(*s, endpoint_iterator,
@@ -316,26 +308,33 @@ void IRC::read(const Message& msg)
   }
   catch(std::invalid_argument)
   {
-    switch(hashit(msg.command))
+    switch(msg.command[0])
     {
-      case PRIVMSG:
+      case 'P':
       {
-        privmsg(msg, msg.params[0], msg.params[1]);
+        switch(msg.command[1])
+        {
+          case 'R': // PRIVMSG
+          {
+            privmsg(msg, msg.params[0], msg.params[1]);
+            break;
+          }
+          case 'I': // PING
+          {
+            if(msg.params.size() == 1)
+            {
+              ping(msg, msg.params[0]);
+            }
+            else if(msg.params.size() > 1)
+            {
+              ping(msg, msg.params[0], msg.params[1]);
+            }
+            break;
+          }
+        }
         break;
       }
-      case PING:
-      {
-        if(msg.params.size() == 1)
-        {
-          ping(msg, msg.params[0]);
-        }
-        else if(msg.params.size() > 1)
-        {
-          ping(msg, msg.params[0], msg.params[1]);
-        }
-        break;
-      }
-      case JOIN:
+      case 'J': // JOIN
       {
         std::vector<std::string> channels;
         std::vector<std::string> keys;
@@ -350,7 +349,6 @@ void IRC::read(const Message& msg)
         join(msg, channels, keys);
         break;
       }
-      case NONE:
       default:
       {
         std::cout << "> " << msg.raw() << std::endl;
