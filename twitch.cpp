@@ -1,6 +1,8 @@
 #include "twitch.hpp"
 #include "json.hpp"
 
+#include <sqlite3.h>
+
 Twitch::Twitch(const std::string& nick, const std::string& pass) : IRC("irc.chat.twitch.tv", "6667", nick, pass)
 {
   
@@ -25,6 +27,8 @@ bool Twitch::reply(const Message& msg, const Reply code)
     case RPL_ENDOFMOTD:
     {
       send("CAP REQ :twitch.tv/tags");
+      send("CAP REQ :twitch.tv/membership");
+      send("CAP REQ :twitch.tv/commands");
       json("tmi.twitch.tv", "/group/user/voyboy/chatters", [] (const boost::property_tree::ptree& res)
       {
         boost::property_tree::ptree chatter_count = res.get_child("chatter_count");

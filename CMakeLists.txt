@@ -1,5 +1,6 @@
 # https://www.johnlamp.net/cmake-tutorial-6-realistically-getting-a-boost.html
 # Boost_DIR=/home/ubuntu/workspace/boost_1_61_0/
+# SQLite3_DIR=/home/ubuntu/workspace/sqlite3/
 
 cmake_minimum_required(VERSION 2.8)
 find_package (Threads)
@@ -14,6 +15,7 @@ endif()
 
 if(Boost_FOUND)
     include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+    include_directories(SYSTEM ${SQLite3_INCLUDE_DIRS})
     add_executable(bot.out bot.cpp irc.cpp twitch.cpp)
     target_link_libraries(bot.out ${Boost_LIBRARIES})
 endif()
