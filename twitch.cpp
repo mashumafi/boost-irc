@@ -3,9 +3,39 @@
 
 #include <sqlite3.h>
 
+static int callback(void *NotUsed, int argc, char **argv, char **azColName){
+  int i;
+  for(i = 0; i < argc; i++)
+  {
+    printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+  }
+  printf("\n");
+  return 0;
+}
+
+
 Twitch::Twitch(const std::string& nick, const std::string& pass) : IRC("irc.chat.twitch.tv", "6667", nick, pass)
 {
+  sqlite3 *db;
+  char *zErrMsg = 0;
+  int rc;
   
+  rc = sqlite3_open("twitch.db", &db);
+  if(rc)
+  {
+    fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+    sqlite3_close(db);
+  }
+  else
+  {
+    rc = sqlite3_exec(db, "CREATE TABLE Persons(PersonID int,LastName varchar(255),FirstName varchar(255),Address varchar(255),City varchar(255));", callback, 0, &zErrMsg);
+    if(rc != SQLITE_OK)
+    {
+      fprintf(stderr, "SQL error: %s\n", zErrMsg);
+      sqlite3_free(zErrMsg);
+    }
+    sqlite3_close(db);
+  }
 }
 
 Twitch::~Twitch()
