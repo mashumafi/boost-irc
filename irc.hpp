@@ -378,6 +378,7 @@ public:
   virtual void error(const std::string& error_message);
 protected:
   virtual bool reply(const Message&, const Reply code);
+  virtual bool message(const Message&);
   
   virtual void join(const Message&, const std::vector<std::string>& channel, const std::vector<std::string>& keys);
   virtual void ping(const Message& msg, const std::string& server, const std::string& server2 = "");

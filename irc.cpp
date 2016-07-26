@@ -46,6 +46,53 @@ void IRC::send(const std::string& raw)
   });
 }
 
+bool IRC::message(const Message& msg, const Reply code)
+{
+  switch(msg.command[0])
+  {
+    case 'P':
+    {
+      switch(msg.command[1])
+      {
+        case 'R': // PRIVMSG
+        {
+          privmsg(msg, msg.params[0], msg.params[1]);
+          return false;
+        }
+        case 'I': // PING
+        {
+          if(msg.params.size() == 1)
+          {
+            ping(msg, msg.params[0]);
+          }
+          else if(msg.params.size() > 1)
+          {
+            ping(msg, msg.params[0], msg.params[1]);
+          }
+          return false;
+        }
+      }
+      return true;
+    }
+    case 'J': // JOIN
+    {
+      std::vector<std::string> channels;
+      std::vector<std::string> keys;
+      if(msg.params.size() > 0)
+      {
+        boost::split(channels, msg.params[0], boost::is_any_of(","));
+      }
+      if(msg.params.size() > 1)
+      {
+        boost::split(keys, msg.params[1], boost::is_any_of(","));
+      }
+      join(msg, channels, keys);
+      return false;
+    }
+  }
+  return true;
+}
+
 bool IRC::reply(const Message& msg, const Reply code)
 {
   return true;
@@ -308,52 +355,9 @@ void IRC::read(const Message& msg)
   }
   catch(std::invalid_argument)
   {
-    switch(msg.command[0])
+    if(message(msg))
     {
-      case 'P':
-      {
-        switch(msg.command[1])
-        {
-          case 'R': // PRIVMSG
-          {
-            privmsg(msg, msg.params[0], msg.params[1]);
-            break;
-          }
-          case 'I': // PING
-          {
-            if(msg.params.size() == 1)
-            {
-              ping(msg, msg.params[0]);
-            }
-            else if(msg.params.size() > 1)
-            {
-              ping(msg, msg.params[0], msg.params[1]);
-            }
-            break;
-          }
-        }
-        break;
-      }
-      case 'J': // JOIN
-      {
-        std::vector<std::string> channels;
-        std::vector<std::string> keys;
-        if(msg.params.size() > 0)
-        {
-          boost::split(channels, msg.params[0], boost::is_any_of(","));
-        }
-        if(msg.params.size() > 1)
-        {
-          boost::split(keys, msg.params[1], boost::is_any_of(","));
-        }
-        join(msg, channels, keys);
-        break;
-      }
-      default:
-      {
-        std::cout << "> " << msg.raw() << std::endl;
-        break;
-      }
+      std::cout << "> " << msg.raw() << std::endl;
     }
   }
 }
