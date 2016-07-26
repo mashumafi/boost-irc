@@ -15,26 +15,20 @@ using namespace boost::assign;
 
 IRC::IRC(const std::string& host, const std::string& port, const std::string& nick, const std::string& pass) : m_nick(nick), m_pass(pass)
 {
-  try
-  {
-    tcp::resolver resolver(io_service);
-    tcp::resolver::query query(tcp::v4(), host, port);
-    tcp::resolver::iterator iterator = resolver.resolve(query);
-  
-    s = new tcp::socket(io_service);
-    connect(iterator);
-    boost::thread t([this](){ io_service.run(); });
-    
-  }
-  catch (std::exception& e)
-  {
-    std::cerr << "Exception: " << e.what() << "\n";
-  }
+  tcp::resolver resolver(io_service);
+  tcp::resolver::query query(tcp::v4(), host, port);
+  tcp::resolver::iterator iterator = resolver.resolve(query);
+
+  s = new tcp::socket(io_service);
+  connect(iterator);
+  boost::thread t([this](){ io_service.run(); });
 }
 
 IRC::~IRC()
 {
-  
+  io_service.stop();
+  s->close();
+  delete s;
 }
 
 void IRC::send(const std::string& cmd, const std::vector<std::string>& vec)
@@ -271,56 +265,7 @@ void IRC::read()
         do
         {
           getline(response_stream, line);
-          
-          Message msg(line);
-          try
-          {
-            this->reply(msg, static_cast<Reply>(stoi(msg.command)));
-          }
-          catch(std::invalid_argument)
-          {
-            switch(hashit(msg.command))
-            {
-              case PRIVMSG:
-              {
-                privmsg(msg, msg.params[0], msg.params[1]);
-                break;
-              }
-              case PING:
-              {
-                if(msg.params.size() == 1)
-                {
-                  ping(msg, msg.params[0]);
-                }
-                else if(msg.params.size() > 1)
-                {
-                  ping(msg, msg.params[0], msg.params[1]);
-                }
-                break;
-              }
-              case JOIN:
-              {
-                std::vector<std::string> channels;
-                std::vector<std::string> keys;
-                if(msg.params.size() > 0)
-                {
-                  boost::split(channels, msg.params[0], boost::is_any_of(","));
-                }
-                if(msg.params.size() > 1)
-                {
-                  boost::split(keys, msg.params[1], boost::is_any_of(","));
-                }
-                join(msg, channels, keys);
-                break;
-              }
-              case NONE:
-              default:
-              {
-                std::cout << "> " << msg.raw() << std::endl;
-                break;
-              }
-            }
-          }
+          read(line);
         } while(response.size() > 0);
         read();
       }
@@ -329,6 +274,63 @@ void IRC::read()
         s->close();
       }
     });
+}
+
+void IRC::read(const std::string& msg)
+{
+  read(Message(msg));
+}
+
+void IRC::read(const Message& msg)
+{
+  try
+  {
+    reply(msg, static_cast<Reply>(stoi(msg.command)));
+  }
+  catch(std::invalid_argument)
+  {
+    switch(hashit(msg.command))
+    {
+      case PRIVMSG:
+      {
+        privmsg(msg, msg.params[0], msg.params[1]);
+        break;
+      }
+      case PING:
+      {
+        if(msg.params.size() == 1)
+        {
+          ping(msg, msg.params[0]);
+        }
+        else if(msg.params.size() > 1)
+        {
+          ping(msg, msg.params[0], msg.params[1]);
+        }
+        break;
+      }
+      case JOIN:
+      {
+        std::vector<std::string> channels;
+        std::vector<std::string> keys;
+        if(msg.params.size() > 0)
+        {
+          boost::split(channels, msg.params[0], boost::is_any_of(","));
+        }
+        if(msg.params.size() > 1)
+        {
+          boost::split(keys, msg.params[1], boost::is_any_of(","));
+        }
+        join(msg, channels, keys);
+        break;
+      }
+      case NONE:
+      default:
+      {
+        std::cout << "> " << msg.raw() << std::endl;
+        break;
+      }
+    }
+  }
 }
 
 void IRC::connected()

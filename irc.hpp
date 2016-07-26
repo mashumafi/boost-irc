@@ -301,14 +301,14 @@ public:
   
   void close();
   
-  virtual void send(const std::string&, const std::vector<std::string>&);
-  virtual void send(const std::string&);
+  virtual void send(const std::string& command, const std::vector<std::string>& params);
+  virtual void send(const std::string& command);
   
   // 3.1.0 Connection Registration
   // 3.1.1 Password message
-  virtual void pass(const std::string&);
+  virtual void pass(const std::string& pass);
   // 3.1.2 Nick message
-  virtual void nick(const std::string&);
+  virtual void nick(const std::string& nick);
   // 3.1.3 User message
   
   // 3.1.4 Oper message
@@ -318,7 +318,7 @@ public:
   // 3.1.6 Service message
   
   // 3.1.7 Quit
-  virtual void quit(const std::string& msg="");
+  virtual void quit(const std::string& msg = "");
   // 3.1.8 Squit
   
   // 3.2.0 Channel operations
@@ -395,6 +395,8 @@ protected:
   virtual void privmsg(const Message&, const std::string&, const std::string&);
   virtual void part(const Message&);
   virtual void connected(void);
+  virtual void read(const std::string& msg);
+  virtual void read(const Message& msg);
   
 private:
   void connect(tcp::resolver::iterator endpoint_iterator);
