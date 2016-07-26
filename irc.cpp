@@ -46,34 +46,54 @@ void IRC::send(const std::string& raw)
   });
 }
 
-void IRC::pass(const std::string& pwd)
-{
-  send("PASS", list_of(pwd));
-}
-
 bool IRC::reply(const Message& msg, const Reply code)
 {
   return true;
 }
 
-void IRC::nick(const std::string& pwd)
+void IRC::pass(const std::string& password)
 {
-  send("NICK", list_of(pwd));
+  send("PASS", list_of(password));
 }
 
-void IRC::quit(const std::string& msg)
+void IRC::nick(const std::string& nickname)
 {
-  send("QUIT", list_of(msg));
+  send("NICK", list_of(nickname));
+}
+  
+void IRC::user(const std::string& user, const unsigned int& mode, const std::string& unused, const std::string& realname)
+{
 }
 
-void IRC::join(const std::vector<std::string>& channel, const std::vector<std::string>& keys)
+void IRC::oper(const std::string& name, const std::string& password)
 {
-  join(boost::algorithm::join(channel, ","), boost::algorithm::join(keys, ","));
 }
 
-void IRC::join(const std::string& channel, const std::string& keys)
+void IRC::mode(const std::string& nickname, const std::string& mode)
 {
-  send("JOIN", list_of(channel)(keys));
+}
+
+void IRC::service(const std::string& nickname, const std::string& reserved1, const std::string& distribution, const std::string& type, const std::string& reserved2, const std::string& info)
+{
+}
+
+void IRC::quit(const std::string& quit_message)
+{
+  send("QUIT", list_of(quit_message));
+}
+
+void IRC::squit(const std::string& server, const std::string& comment)
+{
+}
+
+void IRC::join(const std::vector<std::string>& channels, const std::vector<std::string>& keys)
+{
+  join(boost::algorithm::join(channels, ","), boost::algorithm::join(keys, ","));
+}
+
+void IRC::join(const std::string& channels, const std::string& keys)
+{
+  send("JOIN", list_of(channels)(keys));
 }
 
 void IRC::join0()
@@ -86,48 +106,42 @@ void IRC::join(const Message& msg, const std::vector<std::string>& channels, con
   std::cout << boost::format("%1% joined %2%") % msg.nickname % boost::algorithm::join(channels, ",") << std::endl;
 }
 
-void IRC::part(const std::vector<std::string>& channel, const std::string& msg)
+void IRC::part(const std::vector<std::string>& channels, const std::string& part_message)
 {
-  part(boost::algorithm::join(channel, ","), msg);
+  part(boost::algorithm::join(channels, ","), part_message);
 }
 
-void IRC::part(const std::string& channel, const std::string& msg)
+void IRC::part(const std::string& channels, const std::string& part_message)
 {
-  send("PART", list_of(channel)(msg));
+  send("PART", list_of(channels)(part_message));
 }
 
-void IRC::part(const Message&)
+void IRC::part(const Message& msg)
 {
 }
 
-void IRC::mode(const std::string& channel, const std::string&, const std::string& modes, const std::string& modeparams)
+void IRC::mode(const std::string& channel, const std::string& modes, const std::string& modeparams)
 {
-  
 }
 
 void IRC::topic(const std::string& channel, const std::string& topic)
 {
-  
 }
 
 void IRC::names(const std::vector<std::string>& channels, const std::string& target)
 {
-  
 }
 
-void IRC::names(const std::string& channel, const std::string& target)
+void IRC::names(const std::string& channels, const std::string& target)
 {
-  
 }
 
 void IRC::list(const std::vector<std::string>& channels, const std::string& target)
 {
-  
 }
 
-void IRC::list(const std::string& channel, const std::string& target)
+void IRC::list(const std::string& channels, const std::string& target)
 {
-  
 }
 
 void IRC::invite(const std::string& nickname, const std::string& channel)
@@ -152,60 +166,69 @@ void IRC::privmsg(const Message& msg, const std::string& msgtarget, const std::s
 
 void IRC::notice(const std::string& msgtarget, const std::string& text)
 {
-  
 }
 
 void IRC::motd(const std::string& target)
 {
-  
 }
 
 void IRC::lusers(const std::string& mask, const std::string& target)
 {
-  
 }
 
 void IRC::version(const std::string& target)
 {
-  
 }
 
 void IRC::stats(const std::string& query, const std::string& target)
 {
-  
 }
 
 void IRC::links(const std::string& remote_server, const std::string& server_mask)
 {
-  
 }
 
 void IRC::time(const std::string& target)
 {
-  
 }
 
 void IRC::connect(const std::string& target_server, const std::string& port, const std::string& remote_server)
 {
-  
 }
 
 void IRC::trace(const std::string& target)
 {
-  
 }
 
 void IRC::admin(const std::string& target)
 {
-  
 }
 
 void IRC::info(const std::string& target)
 {
+}
   
+void IRC::servlist(const std::string& mask, const std::string& type)
+{
 }
 
-void IRC::kill()
+void IRC::squery(const std::string& servicename, const std::string& text)
+{
+}
+
+void IRC::who(const std::string& mask, const std::string& parameter)
+{
+}
+
+void IRC::whois(const std::string& mask, const std::string& target)
+{
+}
+
+void IRC::whowas(const std::string& nicknames, uint count, const std::string& target)
+{
+}
+
+void IRC::kill(const std::string& nickname, const std::string& comment)
 {
   
 }

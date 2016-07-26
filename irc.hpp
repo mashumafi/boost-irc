@@ -304,88 +304,83 @@ public:
   virtual void send(const std::string& command, const std::vector<std::string>& params);
   virtual void send(const std::string& command);
   
-  // 3.1.0 Connection Registration
-  // 3.1.1 Password message
-  virtual void pass(const std::string& pass);
-  // 3.1.2 Nick message
-  virtual void nick(const std::string& nick);
-  // 3.1.3 User message
+  virtual void pass(const std::string& password);
   
-  // 3.1.4 Oper message
+  virtual void nick(const std::string& nickname);
   
-  // 3.1.5 User mode message
+  virtual void user(const std::string& user, const unsigned int& mode, const std::string& unused = "*", const std::string& realname = "");
   
-  // 3.1.6 Service message
+  virtual void oper(const std::string& name, const std::string& password);
   
-  // 3.1.7 Quit
-  virtual void quit(const std::string& msg = "");
-  // 3.1.8 Squit
+  virtual void mode(const std::string& nickname, const std::string& mode);
   
-  // 3.2.0 Channel operations
-  // 3.2.1 Join message
+  virtual void service(const std::string& nickname, const std::string& reserved1, const std::string& distribution, const std::string& type, const std::string& reserved2, const std::string& info);
+  
+  virtual void quit(const std::string& quit_message = "");
+  
+  virtual void squit(const std::string& server, const std::string& comment);
+  
   virtual void join0();
-  virtual void join(const std::vector<std::string>&, const std::vector<std::string>& keys=std::vector<std::string>());
-  virtual void join(const std::string&, const std::string& keys = "");
-  // 3.2.2 Part message
-  virtual void part(const std::vector<std::string>&, const std::string& msg = "");
-  virtual void part(const std::string&, const std::string& msg="");
-  // 3.2.3 Channel mode message
-  virtual void mode(const std::string& channel, const std::string&, const std::string& modes, const std::string& modeparams);
-  // 3.2.4 Topic message
-  virtual void topic(const std::string& channel, const std::string& topic);
-  // 3.2.5 Names message
+  virtual void join(const std::vector<std::string>& channels, const std::vector<std::string>& keys = std::vector<std::string>());
+  virtual void join(const std::string& channels, const std::string& keys = "");
+  
+  virtual void part(const std::vector<std::string>& channels, const std::string& part_message = "");
+  virtual void part(const std::string& channels, const std::string& part_message = "");
+  
+  virtual void mode(const std::string& channel, const std::string& modes, const std::string& modeparams);
+  
+  virtual void topic(const std::string& channel, const std::string& topic = "");
+  
   virtual void names(const std::vector<std::string>& channels, const std::string& target = "");
-  virtual void names(const std::string& channel, const std::string& target = "");
-  // 3.2.6 List message
+  virtual void names(const std::string& channels, const std::string& target = "");
+  
   virtual void list(const std::vector<std::string>& channels, const std::string& target = "");
-  virtual void list(const std::string& channel, const std::string& target = "");
-  // 3.2.7 Invite message
+  virtual void list(const std::string& channels, const std::string& target = "");
+  
   virtual void invite(const std::string& nickname, const std::string& channel);
-  // 3.2.8 Kick command
+  
   virtual void kick(const std::vector<std::string>& channels, const std::vector<std::string>& users, const std::string& comment = "");
   
-  // 3.3.0 Sending messages
-  // 3.3.1 Private messages
-  virtual void privmsg(const std::string&, const std::string&);
-  // 3.3.2 Notice
+  virtual void privmsg(const std::string& msgtarget, const std::string& text_to_be_sent);
+  
   virtual void notice(const std::string& msgtarget, const std::string& text);
   
-  // 3.4.0 Server queries and commands
-  // 3.4.1 Motd message
-  virtual void motd(const std::string& target);
-  // 3.4.2 Lusers message
+  virtual void motd(const std::string& target = "");
+  
   virtual void lusers(const std::string& mask = "", const std::string& target = "");
-  // 3.4.3 Version message
+  
   virtual void version(const std::string& target = "");
-  // 3.4.4 Stats message
+  
   virtual void stats(const std::string& query = "", const std::string& target = "");
-  // 3.4.5 Links message
+  
   virtual void links(const std::string& remote_server = "", const std::string& server_mask = "");
-  // 3.4.6 Time message
+  
   virtual void time(const std::string& target = "");
-  // 3.4.7 Connect message
-  virtual void connect(const std::string& target_server = "", const std::string& port = "", const std::string& remote_server = "");
-  // 3.4.8 Trace message
+  
+  virtual void connect(const std::string& target_server, const std::string& port, const std::string& remote_server = "");
+  
   virtual void trace(const std::string& target = "");
-  // 3.4.9 Admin command
+  
   virtual void admin(const std::string& target = "");
-  // 3.4.10 Info command
+  
   virtual void info(const std::string& target = "");
   
-  // 3.5.0 Service Query and Commands
+  virtual void servlist(const std::string& mask = "", const std::string& type = "");
   
+  virtual void squery(const std::string& servicename, const std::string& text);
   
-  // 3.6.0 User based queries
+  virtual void who(const std::string& mask = "", const std::string& parameter = "");
   
+  virtual void whois(const std::string& mask = "", const std::string& target = "");
   
-  // 3.7.0 Miscellaneous messages
-  // 3.7.1  Kill message
-  virtual void kill();
-  // 3.7.2  Ping message
+  virtual void whowas(const std::string& nicknames, uint count = -1, const std::string& target = "");
+  
+  virtual void kill(const std::string& nickname, const std::string& comment);
+
   virtual void ping(const std::string& server, const std::string& server2 = "");
-  // 3.7.3  Pong message
+  
   virtual void pong(const std::string& server, const std::string& server2 = "");
-  // 3.7.3  Error message
+  
   virtual void error(const std::string& error_message);
 protected:
   virtual bool reply(const Message&, const Reply code);
