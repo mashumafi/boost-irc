@@ -1,6 +1,8 @@
 #include "twitch.hpp"
 #include "json.hpp"
 
+#include <boost/filesystem.hpp>
+
 #include <sqlite3.h>
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName){
@@ -20,6 +22,10 @@ Twitch::Twitch(const std::string& nick, const std::string& pass) : IRC("irc.chat
   char *zErrMsg = 0;
   int rc;
   
+  if (!boost::filesystem::exists("twitch.db"))
+  {
+  }
+
   rc = sqlite3_open("twitch.db", &db);
   if(rc)
   {
@@ -28,7 +34,8 @@ Twitch::Twitch(const std::string& nick, const std::string& pass) : IRC("irc.chat
   }
   else
   {
-    rc = sqlite3_exec(db, "CREATE TABLE Persons(PersonID int,LastName varchar(255),FirstName varchar(255),Address varchar(255),City varchar(255));", callback, 0, &zErrMsg);
+    //CREATE TABLE Persons(PersonID int,LastName varchar(255),FirstName varchar(255),Address varchar(255),City varchar(255));
+    rc = sqlite3_exec(db, "select * from persons", callback, 0, &zErrMsg);
     if(rc != SQLITE_OK)
     {
       fprintf(stderr, "SQL error: %s\n", zErrMsg);
