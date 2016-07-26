@@ -11,7 +11,7 @@ Twitch::~Twitch()
 
 }
 
-void Twitch::reply(const Message& msg, const Reply code)
+bool Twitch::reply(const Message& msg, const Reply code)
 {
   switch(code)
   {
@@ -33,9 +33,10 @@ void Twitch::reply(const Message& msg, const Reply code)
       break;
     }
     default:
-      std::cout << "> " << msg.raw() << std::endl;
+      return true;
       break;
   }
+  return false;
 }
 
 void Twitch::privmsg(const Message& msg, const std::string& msgtarget, const std::string& text_to_be_sent)

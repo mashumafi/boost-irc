@@ -51,8 +51,9 @@ void IRC::pass(const std::string& pwd)
   send("PASS", list_of(pwd));
 }
 
-void IRC::reply(const Message& msg, const Reply code)
+bool IRC::reply(const Message& msg, const Reply code)
 {
+  return true;
 }
 
 void IRC::nick(const std::string& pwd)
@@ -285,7 +286,10 @@ void IRC::read(const Message& msg)
 {
   try
   {
-    reply(msg, static_cast<Reply>(stoi(msg.command)));
+    if(reply(msg, static_cast<Reply>(stoi(msg.command))))
+    {
+      std::cout << "> " << msg.raw() << std::endl;
+    }
   }
   catch(std::invalid_argument)
   {

@@ -388,7 +388,7 @@ public:
   // 3.7.3  Error message
   virtual void error(const std::string& error_message);
 protected:
-  virtual void reply(const Message&, const Reply code);
+  virtual bool reply(const Message&, const Reply code);
   
   virtual void join(const Message&, const std::vector<std::string>& channel, const std::vector<std::string>& keys);
   virtual void ping(const Message& msg, const std::string& server, const std::string& server2 = "");

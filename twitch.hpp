@@ -9,7 +9,7 @@ public:
   Twitch(const std::string& nick, const std::string& pass);
   virtual ~Twitch();
 protected:
-  virtual void reply(const Message&, const Reply code) override;
+  virtual bool reply(const Message&, const Reply code) override;
   virtual void privmsg(const Message&, const std::string&, const std::string&) override;
 };
 
