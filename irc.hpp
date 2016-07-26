@@ -180,8 +180,6 @@ enum Reply
   ERR_USERSDONTMATCH    = 502
 };
 
-extern Reply hashit(const std::string& inString);
-
 // https://gist.github.com/datagrok/380449c30fd0c5cf2f30
 
 class Message
