@@ -1,5 +1,6 @@
 #include "twitch.hpp"
 #include "json.hpp"
+#include "client.hpp"
 
 #include <boost/filesystem.hpp>
 
@@ -66,11 +67,12 @@ bool Twitch::reply(const Message& msg, const Reply code)
       send("CAP REQ :twitch.tv/tags");
       send("CAP REQ :twitch.tv/membership");
       send("CAP REQ :twitch.tv/commands");
-      json("tmi.twitch.tv", "/group/user/voyboy/chatters", [] (const boost::property_tree::ptree& res)
+      /*json("tmi.twitch.tv", "/group/user/voyboy/chatters", [] (const boost::property_tree::ptree& res)
       {
         boost::property_tree::ptree chatter_count = res.get_child("chatter_count");
         std::cout << chatter_count.get_value<int>() << std::endl;
-      });
+      });*/
+      client("tmi.twitch.tv", "/group/user/voyboy/chatters");
       break;
     }
     default:
