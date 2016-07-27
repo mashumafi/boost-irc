@@ -1,6 +1,5 @@
 #include "twitch.hpp"
-#include "json.hpp"
-#include "client.hpp"
+#include "http_client.hpp"
 
 #include <boost/filesystem.hpp>
 
@@ -72,7 +71,13 @@ bool Twitch::reply(const Message& msg, const Reply code)
         boost::property_tree::ptree chatter_count = res.get_child("chatter_count");
         std::cout << chatter_count.get_value<int>() << std::endl;
       });*/
-      client("tmi.twitch.tv", "/group/user/voyboy/chatters");
+      http_client::create("tmi.twitch.tv", "/group/user/mashumafi/chatters", [] (const std::stringstream& res)
+      {
+        std::cout << res.str();
+        //boost::property_tree::ptree chatter_count = res.get_child("chatter_count");
+        //std::cout << chatter_count.get_value<int>() << std::endl;
+        
+      });
       break;
     }
     default:
