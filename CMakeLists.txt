@@ -14,7 +14,7 @@ endif()
 
 if(Boost_FOUND)
     include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
-    add_executable(bot.out bot.cpp irc.cpp twitch.cpp sqlite3.c http_client.cpp)
+    add_executable(bot.out bot.cpp irc.cpp twitch.cpp sqlite3.c http_client.cpp json_client.cpp)
     target_link_libraries(bot.out ${Boost_LIBRARIES})
     target_link_libraries(bot.out dl)
 endif()

@@ -1,19 +1,13 @@
 #include "http_client.hpp"
 
-#include <iostream>
-#include <istream>
-#include <ostream>
-#include <string>
-#include <boost/asio.hpp>
 #include <boost/bind.hpp>
-#include <boost/function.hpp>
 #include <boost/thread.hpp>
 
 using boost::asio::ip::tcp;
 
-http_client* http_client::create(const std::string& server, const std::string& path, const boost::function<void (const std::stringstream&)>& json_cb)
+http_client* http_client::create(const std::string& server, const std::string& path, const boost::function<void (std::stringstream&)>& http_cb)
 {
-  return new http_client(server, path, json_cb);
+  return new http_client(server, path, http_cb);
 }
 
 http_client::~http_client()
@@ -21,10 +15,10 @@ http_client::~http_client()
   io_service.stop();
 }
 
-http_client::http_client(const std::string& server, const std::string& path, const boost::function<void (const std::stringstream&)>& json_cb)
+http_client::http_client(const std::string& server, const std::string& path, const boost::function<void (std::stringstream&)>& http_cb)
   : resolver_(io_service),
   socket_(io_service),
-  json_cb_(json_cb)
+  http_cb_(http_cb)
 {
   // Form the request. We specify the "Connection: close" header so that the
   // server will close the socket after transmitting the response. This will
@@ -158,6 +152,7 @@ void http_client::handle_read_headers(const boost::system::error_code& err)
 
     // Start reading remaining data until EOF.
     boost::asio::async_read(socket_, response_,
+                boost::asio::transfer_at_least(1),
                 boost::bind(&http_client::handle_read_content, this,
                       boost::asio::placeholders::error));
   }
@@ -175,6 +170,7 @@ void http_client::handle_read_content(const boost::system::error_code& err)
     res_ << &response_;
     // Continue reading remaining data until EOF.
     boost::asio::async_read(socket_, response_,
+                boost::asio::transfer_at_least(1),
                 boost::bind(&http_client::handle_read_content, this,
                       boost::asio::placeholders::error));
   }
@@ -184,7 +180,7 @@ void http_client::handle_read_content(const boost::system::error_code& err)
   }
   else
   {
-    json_cb_(res_);
+    http_cb_(res_);
     io_service.post([this]() {
       socket_.close();
       io_service.stop();

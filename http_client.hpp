@@ -8,11 +8,11 @@
 class http_client
 {
 public:
-  static http_client* create(const std::string& server, const std::string& path, const boost::function<void (const std::stringstream&)>& json_cb);
+  static http_client* create(const std::string& server, const std::string& path, const boost::function<void (std::stringstream&)>& http_cb);
   ~http_client();
 private:
+  http_client(const std::string& server, const std::string& path, const boost::function<void (std::stringstream&)>& http_cb);
   
-  http_client(const std::string& server, const std::string& path, const boost::function<void (const std::stringstream&)>& json_cb);
   void handle_resolve(const boost::system::error_code& err, boost::asio::ip::tcp::resolver::iterator endpoint_iterator);
 
   void handle_connect(const boost::system::error_code& err, boost::asio::ip::tcp::resolver::iterator endpoint_iterator);
@@ -31,7 +31,7 @@ private:
   boost::asio::streambuf request_;
   boost::asio::streambuf response_;
   std::stringstream res_;
-  boost::function<void (const std::stringstream&)> json_cb_;
+  boost::function<void (std::stringstream&)> http_cb_;
 };
 
 #endif
