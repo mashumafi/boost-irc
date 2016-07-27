@@ -224,7 +224,7 @@ public:
       std::string tags_str(what[1]);
       std::vector<std::string> tags;
       boost::split(tags, tags_str, boost::is_any_of(";"));
-      for(uint i = 0; i < tags.size(); i++)
+      for(unsigned int i = 0; i < tags.size(); i++)
       {
         std::vector<std::string> tag;
         boost::split(tag, tags[i], boost::is_any_of("="));
@@ -367,7 +367,7 @@ public:
   
   virtual void whois(const std::string& mask = "", const std::string& target = "");
   
-  virtual void whowas(const std::string& nicknames, uint count = -1, const std::string& target = "");
+  virtual void whowas(const std::string& nicknames, unsigned int count = -1, const std::string& target = "");
   
   virtual void kill(const std::string& nickname, const std::string& comment);
 

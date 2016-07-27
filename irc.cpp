@@ -271,7 +271,7 @@ void IRC::whois(const std::string& mask, const std::string& target)
 {
 }
 
-void IRC::whowas(const std::string& nicknames, uint count, const std::string& target)
+void IRC::whowas(const std::string& nicknames, unsigned int count, const std::string& target)
 {
 }
 
