@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
   
   // Initialise the server.
   // <address> <port> <doc_root>
-  http::server::server s("0.0.0.0", "8000", argv[3]);
+  http::server::server s("0.0.0.0", "8080", argv[3]);
 
   // Run the server until stopped.
   s.run();

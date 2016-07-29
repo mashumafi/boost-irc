@@ -2,10 +2,25 @@
 # Boost_DIR=/home/ubuntu/workspace/boost_1_61_0/
 
 cmake_minimum_required(VERSION 2.8)
+
 find_package (Threads)
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_MULTITHREADED ON)
+
+if(WIN32)
+  set(BOOST_ROOT       C:/Boost/boost_1_61_0/)
+  set(BOOST_INCLUDEDIR C:/Boost/boost_1_61_0/)
+  set(BOOST_LIBRARYDIR C:/Boost/boost_1_61_0/stage/lib/)
+  
+  set(Boost_INCLUDE_DIRS C:/Boost/boost_1_61_0/)
+  set(Boost_LIBRARY_DIRS C:/Boost/boost_1_61_0/stage/lib/)
+  
+  add_definitions(-DBOOST_ALL_NO_LIB)
+  set(Boost_USE_STATIC_LIBS     ON)
+else()
+  set(Boost_USE_STATIC_LIBS    OFF)
+endif()
+set(Boost_USE_MULTITHREADED   ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
+
 find_package(Boost COMPONENTS system thread regex filesystem)
 
 if(UNIX)
@@ -22,6 +37,6 @@ if(Boost_FOUND)
     add_subdirectory(http_client)
     add_subdirectory(http_server)
     add_subdirectory(sqlite3)
-    add_executable(bot.out bot.cpp)
-    target_link_libraries(bot.out irc_client twitch_client sqlite3 http_client json_client server)
+    add_executable(bot bot.cpp)
+    target_link_libraries(bot irc_client twitch_client sqlite3 http_client json_client server)
 endif()
