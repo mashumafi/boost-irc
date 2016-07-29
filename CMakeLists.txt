@@ -1,7 +1,12 @@
 # https://www.johnlamp.net/cmake-tutorial-6-realistically-getting-a-boost.html
 # Boost_DIR=/home/ubuntu/workspace/boost_1_61_0/
+# cmake . -G "Visual Studio 14 Win64"
+# ./bootstrap.bat
+# ./b2 -j8 --toolset=msvc-14.0 address-model=64 --build-type=complete stage --with-python
 
 cmake_minimum_required(VERSION 2.8)
+
+project(twitch)
 
 find_package (Threads)
 
