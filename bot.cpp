@@ -1,4 +1,4 @@
-#include "twitch.hpp"
+#include "twitch_client.hpp"
 
 #include <iostream>
 
@@ -8,7 +8,7 @@ int main(int argc, char* argv[]) {
     std::cerr << "Usage: bot username password\n";
     return 1;
   }
-  Twitch irc(argv[1], argv[2]);
+  twitch_client irc(argv[1], argv[2]);
   char line[64];
   while (std::cin.getline(line, 64))
   {

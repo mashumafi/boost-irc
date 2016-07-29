@@ -1,13 +1,13 @@
 #ifndef TWITCH_H
 #define TWITCH_H
 
-#include "irc.hpp"
+#include "irc_client.hpp"
 
-class Twitch : public IRC
+class twitch_client : public irc_client
 {
 public:
-  Twitch(const std::string& nick, const std::string& pass);
-  virtual ~Twitch();
+  twitch_client(const std::string& nick, const std::string& pass);
+  virtual ~twitch_client();
 protected:
   virtual bool reply(const Message&, const Reply code) override;
   virtual void privmsg(const Message&, const std::string&, const std::string&) override;

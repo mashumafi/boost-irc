@@ -202,7 +202,7 @@ public:
                                   "@([^\\ ]*)"        // @host
                                   ")?"                // (host was optional)
                                   ")\\ )?"            // ":nick!user@host " ends
-                                  "([^\\ ]+)"         // IRC command (required)
+                                  "([^\\ ]+)"         // irc_client command (required)
                                                       // Optional args, max 15, space separated. Last arg is
                                                       // the only one that may contain inner spaces. More than
                                                       // 15 words means remainder of words are part of 15th arg.
@@ -287,11 +287,11 @@ public:
   std::vector<std::string> params;
 };
 
-class IRC
+class irc_client
 {
 public:
-  IRC(const std::string& host, const std::string& port, const std::string& nick, const std::string& pass);
-  virtual ~IRC();
+  irc_client(const std::string& host, const std::string& port, const std::string& nick, const std::string& pass);
+  virtual ~irc_client();
   
   void close();
   

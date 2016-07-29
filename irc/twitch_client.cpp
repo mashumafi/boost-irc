@@ -1,4 +1,4 @@
-#include "twitch.hpp"
+#include "twitch_client.hpp"
 #include "json_client.hpp"
 
 #include <boost/filesystem.hpp>
@@ -16,7 +16,7 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName){
 }
 
 
-Twitch::Twitch(const std::string& nick, const std::string& pass) : IRC("irc.chat.twitch.tv", "6667", nick, pass)
+twitch_client::twitch_client(const std::string& nick, const std::string& pass) : irc_client("irc.chat.twitch.tv", "6667", nick, pass)
 {
   sqlite3 *db;
   char *zErrMsg = 0;
@@ -45,12 +45,12 @@ Twitch::Twitch(const std::string& nick, const std::string& pass) : IRC("irc.chat
   }
 }
 
-Twitch::~Twitch()
+twitch_client::~twitch_client()
 {
 
 }
 
-bool Twitch::reply(const Message& msg, const Reply code)
+bool twitch_client::reply(const Message& msg, const Reply code)
 {
   switch(code)
   {
@@ -80,7 +80,7 @@ bool Twitch::reply(const Message& msg, const Reply code)
   return false;
 }
 
-void Twitch::privmsg(const Message& msg, const std::string& msgtarget, const std::string& text_to_be_sent)
+void twitch_client::privmsg(const Message& msg, const std::string& msgtarget, const std::string& text_to_be_sent)
 {
-  IRC::privmsg(msg, msgtarget, text_to_be_sent);
+  irc_client::privmsg(msg, msgtarget, text_to_be_sent);
 }
