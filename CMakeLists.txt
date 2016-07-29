@@ -33,6 +33,7 @@ if(UNIX)
 endif()
 
 if(Boost_FOUND)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
     include_directories(${Boost_INCLUDE_DIRS})
     include_directories(irc)
     include_directories(http_client)
