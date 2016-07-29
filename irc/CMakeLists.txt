@@ -1,4 +1,4 @@
-
-
-#add_executable(irc_client.o irc_client.cpp)
-#add_executable(twitch_client.o twitch_client.cpp)
+add_library(irc_client irc_client.cpp)
+target_link_libraries(irc_client ${Boost_LIBRARIES})
+add_library(twitch_client twitch_client.cpp)
+target_link_libraries(twitch_client ${Boost_LIBRARIES})

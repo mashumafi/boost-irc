@@ -1,5 +1,5 @@
 #include "twitch_client.hpp"
-#include "json_client.hpp"
+#include <json_client.hpp>
 
 #include <boost/filesystem.hpp>
 

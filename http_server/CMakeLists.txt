@@ -1,0 +1,7 @@
+add_library(connection.o connection.cpp)
+add_library(connection_manager.o connection_manager.cpp)
+add_library(mime_types.o mime_types.cpp)
+add_library(reply.o reply.cpp)
+add_library(request_handler.o request_handler.cpp)
+add_library(request_parser.o request_parser.cpp)
+add_library(server.o server.cpp)
