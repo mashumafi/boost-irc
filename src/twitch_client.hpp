@@ -1,7 +1,7 @@
 #ifndef TWITCH_H
 #define TWITCH_H
 
-#include "irc_client.hpp"
+#include <irc_client.hpp>
 
 class twitch_client : public irc_client
 {
