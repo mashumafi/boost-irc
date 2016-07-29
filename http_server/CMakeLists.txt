@@ -1,1 +1,0 @@
-add_library(http_server connection.cpp connection.hpp connection_manager.cpp connection_manager.hpp mime_types.cpp mime_types.hpp reply.cpp reply.hpp request_handler.cpp request_handler.hpp request_parser.cpp request_parser.hpp server.cpp server.hpp)
