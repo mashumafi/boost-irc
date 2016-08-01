@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>
+      websocket irc
+    </title>
+  </head>
+  <body>
+    <script type="text/javascript">
+      var ws;
+      window.onload=function(){
+        ws=new WebSocket("ws://boost-mashumafi.c9users.io:8081/echo");
+        ws.onmessage=function(evt){console.log(evt.data);};
+        ws.onopen=function(evt){
+          ws.send("Hello");
+        }
+      }
+      window.onclose=function(){
+        ws.close();
+      }
+    </script>
+  </body>
+</html>
