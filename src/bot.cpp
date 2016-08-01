@@ -25,7 +25,6 @@ int main(int argc, char* argv[]) {
     std::cerr << "Usage: bot username password doc_root\n";
     return 1;
   }
-  twitch_client irc(argv[1], argv[2]);
   
   HttpServer http(8080, 1);
   http.default_resource["GET"]=[&http](shared_ptr<HttpServer::Response> response, shared_ptr<HttpServer::Request> request) {
@@ -105,7 +104,21 @@ int main(int argc, char* argv[]) {
     cout << "Server: Error in connection " << (size_t)connection.get() << ". " << 
             "Error: " << ec << ", error message: " << ec.message() << endl;
   };
-
+  
+  auto& channel=websocket.endpoint["^/channel/([a-z0-9]+)/?$"];
+  channel.onmessage=[&websocket](shared_ptr<WsServer::Connection> connection, shared_ptr<WsServer::Message> message) {
+    auto message_str=message->string();
+  };
+  channel.onopen=[&websocket, argv](shared_ptr<WsServer::Connection> connection)
+  {
+    new twitch_client(argv[1], argv[2], &websocket, connection);
+  };
+  channel.onclose=[](shared_ptr<WsServer::Connection> connection, int status, const string&)
+  {
+  };
+  channel.onerror=[](shared_ptr<WsServer::Connection> connection, const boost::system::error_code& ec)
+  {
+  };
 
   thread websocket_thread([&websocket](){
     websocket.start();

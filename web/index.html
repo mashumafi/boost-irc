@@ -9,7 +9,7 @@
     <script type="text/javascript">
       var ws;
       window.onload=function(){
-        ws=new WebSocket("ws://boost-mashumafi.c9users.io:8081/echo");
+        ws=new WebSocket("ws://boost-mashumafi.c9users.io:8081/channel/nightblue3/");
         ws.onmessage=function(evt){console.log(evt.data);};
         ws.onopen=function(evt){
           ws.send("Hello");

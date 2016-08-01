@@ -363,7 +363,6 @@ namespace SimpleWeb {
           getline(stream, line);
           size_t param_end;
           while((param_end=line.find(':'))!=std::string::npos) {
-            std::cout << line << std::endl;
             size_t value_start=param_end+1;
             if((value_start)<line.size()) {
               if(line[value_start]==' ')
