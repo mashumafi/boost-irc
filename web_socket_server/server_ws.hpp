@@ -6,6 +6,7 @@
 #include <boost/asio.hpp>
 #include <boost/asio/spawn.hpp>
 #include <boost/regex.hpp>
+#include <boost/uuid/sha1.hpp>
 
 #include <unordered_map>
 #include <thread>
@@ -409,12 +410,49 @@ namespace SimpleWeb {
       if(connection->header.count("sec-websocket-key")==0)
         return 0;
       
-      auto sha1=Crypto::SHA1(connection->header["sec-websocket-key"]+ws_magic_string);
+      //auto sha1=Crypto::SHA1(connection->header["sec-websocket-key"]+ws_magic_string);
+      /*boost::uuids::detail::sha1 s;
+      char hash[20];
+      std::string a = connection->header["sec-websocket-key"]+ws_magic_string;
+      s.process_bytes(a.c_str(), a.size());
+      unsigned int digest[5];
+      s.get_digest(digest);
+      for(int i = 0; i < 5; ++i)
+      {
+        const char* tmp = reinterpret_cast<char*>(digest);
+        hash[i*4] = tmp[i*4+3];
+        hash[i*4+1] = tmp[i*4+2];
+        hash[i*4+2] = tmp[i*4+1];
+        hash[i*4+3] = tmp[i*4];
+      }
+      std::stringstream ss;
+      ss << std::hex;
+      for(int i = 0; i < 20; ++i)
+      {
+        ss << ((hash[i] & 0x000000F0) >> 4) 
+           <<  (hash[i] & 0x0000000F);
+      } 
+      std::string sha1 = ss.str();
+      std::cout << sha1 << std::endl;*/
+      
+      std::string buf = connection->header["sec-websocket-key"]+ws_magic_string;
+      boost::uuids::detail::sha1 sha1;
+      unsigned int hash[5];
+      sha1.process_bytes(buf.c_str(), buf.size());
+      sha1.get_digest(hash);
+      std::stringstream ss;
+      ss << std::hex << std::setfill('0') << std::setw(sizeof(int) * 2);
+      for(std::size_t i = 0; i < sizeof(hash) / sizeof(hash[0]); ++i)
+      {
+        ss << hash[i];
+      }
+      std::string res = ss.str();
+      std::cout << res << std::endl;
 
       handshake << "HTTP/1.1 101 Web Socket Protocol Handshake\r\n";
       handshake << "Upgrade: websocket\r\n";
       handshake << "Connection: Upgrade\r\n";
-      handshake << "Sec-WebSocket-Accept: " << Crypto::Base64::encode(sha1) << "\r\n";
+      handshake << "Sec-WebSocket-Accept: " << Crypto::Base64::encode(res) << "\r\n";
       handshake << "\r\n";
       
       return 1;
